@@ -6,14 +6,12 @@ export function ControlPanel() {
   const {
     photos,
     selectedElement,
-    receiptTransform,
     canvas,
     addPhoto,
     removePhoto,
     updatePhotoTransform,
     updatePhotoShadow,
     updatePhotoBorder,
-    updateReceiptTransform,
     setBackground,
     setBackgroundColor,
   } = useAppStore();
@@ -34,7 +32,6 @@ export function ControlPanel() {
       reader.onload = (ev) => {
         const img = new Image();
         img.onload = () => {
-          // 이미지 크기를 캔버스에 적합하게 조절
           const maxW = 400;
           const ratio = img.width / img.height;
           const w = Math.min(img.width, maxW);
@@ -263,52 +260,6 @@ export function ControlPanel() {
           <button className="btn-danger" onClick={() => removePhoto(selectedPhoto.id)}>
             사진 삭제
           </button>
-        </section>
-      )}
-
-      {/* 영수증 컨트롤 */}
-      {selectedElement?.type === 'receipt' && (
-        <section className="ctrl-section">
-          <h3>영수증 설정</h3>
-          <label className="ctrl-label">
-            크기: {Math.round(receiptTransform.scale * 100)}%
-            <input
-              type="range"
-              min="0.3"
-              max="3"
-              step="0.05"
-              value={receiptTransform.scale}
-              onChange={(e) =>
-                updateReceiptTransform({ scale: parseFloat(e.target.value) })
-              }
-            />
-          </label>
-          <label className="ctrl-label">
-            회전: {receiptTransform.rotation}°
-            <input
-              type="range"
-              min="-180"
-              max="180"
-              step="1"
-              value={receiptTransform.rotation}
-              onChange={(e) =>
-                updateReceiptTransform({ rotation: parseInt(e.target.value) })
-              }
-            />
-          </label>
-          <label className="ctrl-label">
-            너비: {receiptTransform.width}px
-            <input
-              type="range"
-              min="200"
-              max="600"
-              step="10"
-              value={receiptTransform.width}
-              onChange={(e) =>
-                updateReceiptTransform({ width: parseInt(e.target.value) })
-              }
-            />
-          </label>
         </section>
       )}
     </div>
