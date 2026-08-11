@@ -172,14 +172,109 @@ body {
   50% { border-color: rgba(108, 99, 255, 0.7); }
 }
 
-/* Receipt - Canvas 기반 렌더링 */
+/* Receipt - 레퍼런스 이미지 정확 재현 */
 .receipt-canvas-container {
   width: 100%;
-  box-shadow:
-    2px 3px 12px rgba(0, 0, 0, 0.2),
-    0 0 0 1px rgba(0, 0, 0, 0.04);
-  border-radius: 1px;
-  overflow: hidden;
+}
+
+.receipt {
+  width: 100%;
+  padding: 30px 24px;
+  background: #fff;
+  color: #000;
+  font-family: 'Malgun Gothic', '맑은 고딕', 'Dotum', '돋움', sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+  font-weight: 700;
+}
+
+.r-title {
+  text-align: center;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 6px;
+  margin-bottom: 20px;
+}
+
+.r-addr-label {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.r-addr {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 5px;
+  margin: 2px 0 12px;
+}
+
+.r-stars {
+  font-size: 13px;
+  font-weight: 700;
+  margin: 8px 0 4px;
+}
+
+.r-body {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.6;
+  margin-bottom: 4px;
+  word-break: keep-all;
+}
+
+.r-bold {
+  font-weight: 800;
+}
+
+.r-hr {
+  border: none;
+  border-top: 2px solid #000;
+  margin: 14px 0 8px;
+}
+
+.r-hr-dash {
+  border: none;
+  border-top: 1.5px dashed #555;
+  margin: 8px 0;
+}
+
+.r-row {
+  display: flex;
+  align-items: baseline;
+  font-size: 16px;
+  font-weight: 700;
+  margin: 4px 0;
+}
+
+.r-col-name {
+  flex: 1;
+}
+
+.r-col-qty {
+  width: 50px;
+  text-align: center;
+}
+
+.r-col-price {
+  width: 80px;
+  text-align: right;
+}
+
+.r-menu-header {
+  font-size: 15px;
+  margin-bottom: 2px;
+}
+
+.r-total-section {
+  margin-top: 8px;
+}
+
+.r-total-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 2px 0;
 }
 
 /* Control Panel */
