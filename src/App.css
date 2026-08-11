@@ -143,70 +143,194 @@ body {
   pointer-events: none;
 }
 
-/* Receipt Styling */
+.canvas-element .rotate-indicator {
+  position: absolute;
+  inset: -6px;
+  border: 2px solid rgba(108, 99, 255, 0.4);
+  border-radius: 4px;
+  pointer-events: none;
+  animation: rotate-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes rotate-pulse {
+  0%, 100% { border-color: rgba(108, 99, 255, 0.3); }
+  50% { border-color: rgba(108, 99, 255, 0.7); }
+}
+
+/* Receipt Styling - 실제 감열지 종이 질감 */
 .receipt {
   width: 100%;
-  padding: 24px 20px;
-  background: #ffffff;
-  color: #1a1a1a;
-  font-family: 'Noto Sans KR', 'Malgun Gothic', monospace;
-  font-size: 13px;
-  line-height: 1.6;
-  border: 1px solid #ddd;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 28px 22px;
+  /* 감열지 종이색 - 약간 노르스름하고 회색 끼 */
+  background:
+    /* 미세한 종이 노이즈 패턴 */
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 1px,
+      rgba(0, 0, 0, 0.008) 1px,
+      rgba(0, 0, 0, 0.008) 2px
+    ),
+    /* 세로 줄 질감 (감열지 특유의 결) */
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 3px,
+      rgba(0, 0, 0, 0.006) 3px,
+      rgba(0, 0, 0, 0.006) 4px
+    ),
+    /* 전체적인 그라데이션 (약간 불균일한 인쇄) */
+    linear-gradient(
+      180deg,
+      #f9f6f0 0%,
+      #f7f4ee 20%,
+      #f5f2ec 50%,
+      #f3f0e8 80%,
+      #f1eee6 100%
+    );
+  color: #2a2a2a;
+  /* 감열지 프린터의 실제 폰트는 고딕 계열 + 약간 거친 느낌 */
+  font-family: 'Nanum Gothic', 'NanumGothic', 'Malgun Gothic', '맑은 고딕', sans-serif;
+  font-size: 14px;
+  line-height: 1.7;
+  /* 종이 가장자리 표현 */
+  border: none;
+  box-shadow:
+    2px 3px 12px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
+  /* 종이 테두리 미세하게 불규칙 */
+  border-radius: 1px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 종이 가장자리 효과 (약간 뜯긴 느낌) */
+.receipt::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0px,
+    transparent 4px,
+    #f9f6f0 4px,
+    #f9f6f0 5px,
+    transparent 5px,
+    transparent 8px
+  );
+}
+
+.receipt::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0px,
+    transparent 3px,
+    #f9f6f0 3px,
+    #f9f6f0 5px,
+    transparent 5px,
+    transparent 7px
+  );
 }
 
 .receipt-title {
   text-align: center;
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 4px;
-  margin-bottom: 16px;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 6px;
+  margin-bottom: 18px;
+  color: #1a1a1a;
+  /* 감열 인쇄 특유의 약간 번진 느낌 */
+  text-shadow: 0.3px 0.3px 0px rgba(0, 0, 0, 0.1);
 }
 
 .receipt-section { margin-bottom: 8px; }
-.receipt-label { font-size: 13px; font-weight: 500; }
-.receipt-address { font-size: 20px; font-weight: 700; letter-spacing: 2px; margin-top: 2px; }
+.receipt-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+}
+.receipt-address {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  margin-top: 2px;
+  color: #111;
+  text-shadow: 0.4px 0.4px 0px rgba(0, 0, 0, 0.08);
+}
 
 .receipt-divider-stars {
   font-size: 11px;
   text-align: center;
-  margin: 10px 0 4px;
+  margin: 12px 0 6px;
   white-space: nowrap;
   overflow: hidden;
+  color: #333;
+  letter-spacing: 0.5px;
 }
 
-.receipt-request { font-size: 13px; line-height: 1.5; margin-bottom: 4px; word-break: keep-all; }
-.receipt-line { border-top: 1px solid #333; margin: 12px 0 8px; }
-.receipt-line-dashed { border-top: 1px dashed #999; margin: 4px 0 8px; }
+.receipt-request {
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 6px;
+  word-break: keep-all;
+  color: #222;
+  font-weight: 500;
+}
+
+.receipt-line {
+  border-top: 1.5px solid #333;
+  margin: 14px 0 10px;
+}
+
+.receipt-line-dashed {
+  border-top: 1.5px dashed #666;
+  margin: 6px 0 10px;
+}
 
 .receipt-menu-header {
   display: grid;
   grid-template-columns: 1fr 50px 70px;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
+  color: #111;
 }
 .receipt-menu-header span:nth-child(2),
 .receipt-menu-header span:nth-child(3) { text-align: right; }
 
-.receipt-menu-items { margin: 8px 0; }
-.receipt-menu-item { margin-bottom: 4px; }
+.receipt-menu-items { margin: 10px 0; }
+.receipt-menu-item { margin-bottom: 6px; }
 
 .receipt-normal-item {
   display: grid;
   grid-template-columns: 1fr 50px 70px;
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #222;
 }
 .receipt-normal-item .item-qty,
 .receipt-normal-item .item-price { text-align: right; }
 
-.receipt-promo-line { font-size: 13px; }
-.receipt-promo-name { font-weight: 600; margin-bottom: 2px; }
+.receipt-promo-line { font-size: 14px; }
+.receipt-promo-name {
+  font-weight: 700;
+  margin-bottom: 2px;
+  color: #222;
+}
 .receipt-promo-detail {
   display: grid;
   grid-template-columns: 1fr 50px 70px;
-  font-size: 12px;
-  color: #444;
+  font-size: 13px;
+  color: #333;
+  font-weight: 500;
 }
 .receipt-promo-detail span:nth-child(2),
 .receipt-promo-detail span:nth-child(3) { text-align: right; }
@@ -214,19 +338,29 @@ body {
 .receipt-delivery-fee {
   display: grid;
   grid-template-columns: 1fr 50px 70px;
-  font-size: 13px;
-  margin: 4px 0;
+  font-size: 14px;
+  font-weight: 500;
+  margin: 6px 0;
+  color: #222;
 }
 .receipt-delivery-fee span:nth-child(2),
 .receipt-delivery-fee span:nth-child(3) { text-align: right; }
 
-.receipt-discount-label { font-size: 13px; font-weight: 500; margin: 8px 0; }
-.receipt-totals { margin-top: 8px; }
+.receipt-discount-label {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 10px 0;
+  color: #222;
+}
+
+.receipt-totals { margin-top: 10px; }
 .receipt-total-row {
   display: flex;
   justify-content: space-between;
-  font-size: 13px;
-  padding: 2px 0;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 3px 0;
+  color: #1a1a1a;
 }
 
 /* Control Panel */
