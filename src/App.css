@@ -172,109 +172,124 @@ body {
   50% { border-color: rgba(108, 99, 255, 0.7); }
 }
 
-/* Receipt - 레퍼런스 이미지 정확 재현 */
+/* Receipt - 실물 감열지 종이 영수증 */
 .receipt-canvas-container {
   width: 100%;
 }
 
-.receipt {
-  width: 100%;
-  padding: 30px 24px;
-  background: #fff;
-  color: #000;
-  font-family: 'Malgun Gothic', '맑은 고딕', 'Dotum', '돋움', sans-serif;
-  font-size: 15px;
-  line-height: 1.7;
-  font-weight: 700;
+/*
+  실제 감열지 종이 - 레퍼런스 사진 그대로 재현
+  - 약간 노르스름한 종이
+  - 가장자리 불규칙
+  - 미세한 그림자
+  - POS 프린터 폰트 (작고 빽빽한 고딕)
+*/
+.thermal-paper {
+  background: #f5f3ed;
+  padding: 4px;
+  position: relative;
+  box-shadow:
+    1px 2px 4px rgba(0,0,0,0.12),
+    0 1px 2px rgba(0,0,0,0.08);
+  /* 종이 가장자리 미세하게 불규칙 */
+  clip-path: polygon(
+    0% 0.3%, 4% 0%, 8% 0.2%, 15% 0%, 20% 0.1%, 30% 0%, 40% 0.2%, 50% 0%, 60% 0.1%, 70% 0%, 80% 0.2%, 90% 0%, 95% 0.1%, 100% 0%,
+    100% 99.7%, 96% 100%, 90% 99.8%, 85% 100%, 75% 99.9%, 65% 100%, 55% 99.8%, 45% 100%, 35% 99.9%, 25% 100%, 15% 99.8%, 5% 100%, 0% 99.9%
+  );
 }
 
-.r-title {
+.thermal-content {
+  padding: 18px 16px;
+  background:
+    /* 미세한 가로줄 (감열지 프린터 줄 흔적) */
+    repeating-linear-gradient(
+      180deg,
+      transparent 0px,
+      transparent 2.4px,
+      rgba(0,0,0,0.012) 2.4px,
+      rgba(0,0,0,0.012) 2.6px
+    ),
+    #f7f5f0;
+}
+
+/* 폰트: POS 감열지 프린터 느낌 - 작고 빽빽하고 진한 고딕 */
+.thermal-paper,
+.thermal-paper * {
+  font-family: 'Noto Sans KR', 'Malgun Gothic', '맑은 고딕', sans-serif;
+  color: #1c1c1c;
+}
+
+.tp-title {
   text-align: center;
-  font-size: 19px;
-  font-weight: 700;
-  letter-spacing: 6px;
-  margin-bottom: 20px;
-}
-
-.r-addr-label {
-  font-size: 15px;
-  font-weight: 700;
-}
-
-.r-addr {
-  font-size: 28px;
-  font-weight: 900;
-  letter-spacing: 5px;
-  margin: 2px 0 12px;
-}
-
-.r-stars {
   font-size: 13px;
   font-weight: 700;
-  margin: 8px 0 4px;
+  letter-spacing: 3px;
+  margin: 0 0 12px;
 }
 
-.r-body {
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1.6;
-  margin-bottom: 4px;
+.tp-text {
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.55;
+  margin: 0 0 2px;
   word-break: keep-all;
 }
 
-.r-bold {
-  font-weight: 800;
-}
-
-.r-hr {
-  border: none;
-  border-top: 2px solid #000;
-  margin: 14px 0 8px;
-}
-
-.r-hr-dash {
-  border: none;
-  border-top: 1.5px dashed #555;
-  margin: 8px 0;
-}
-
-.r-row {
-  display: flex;
-  align-items: baseline;
-  font-size: 16px;
+.tp-bold {
   font-weight: 700;
-  margin: 4px 0;
 }
 
-.r-col-name {
-  flex: 1;
+.tp-address {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  margin: 0 0 8px;
 }
 
-.r-col-qty {
-  width: 50px;
-  text-align: center;
+.tp-stars {
+  font-size: 9.5px;
+  font-weight: 600;
+  margin: 6px 0 3px;
+  letter-spacing: -0.3px;
 }
 
-.r-col-price {
-  width: 80px;
-  text-align: right;
+.tp-line {
+  border-top: 1.2px solid #2a2a2a;
+  margin: 8px 0 5px;
 }
 
-.r-menu-header {
-  font-size: 15px;
+.tp-line-dash {
+  border-top: 1px dashed #555;
+  margin: 6px 0 5px;
+}
+
+.tp-row {
+  display: flex;
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.6;
+  margin: 1px 0;
+}
+
+.tp-header {
+  font-weight: 700;
   margin-bottom: 2px;
 }
 
-.r-total-section {
-  margin-top: 8px;
+.tp-name { flex: 1; }
+.tp-qty { width: 35px; text-align: right; }
+.tp-price { width: 55px; text-align: right; }
+
+.tp-totals {
+  margin-top: 4px;
 }
 
-.r-total-row {
+.tp-total-row {
   display: flex;
   justify-content: space-between;
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 700;
-  padding: 2px 0;
+  line-height: 1.6;
 }
 
 /* Control Panel */
