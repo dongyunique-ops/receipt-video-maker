@@ -152,6 +152,21 @@ body {
   animation: rotate-pulse 1.2s ease-in-out infinite;
 }
 
+/* 코너 리사이즈 핸들 */
+.canvas-element .resize-handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: var(--accent);
+  border: 2px solid #fff;
+  border-radius: 2px;
+  pointer-events: none;
+}
+.canvas-element .resize-handle.tl { top: -5px; left: -5px; }
+.canvas-element .resize-handle.tr { top: -5px; right: -5px; }
+.canvas-element .resize-handle.bl { bottom: -5px; left: -5px; }
+.canvas-element .resize-handle.br { bottom: -5px; right: -5px; }
+
 @keyframes rotate-pulse {
   0%, 100% { border-color: rgba(108, 99, 255, 0.3); }
   50% { border-color: rgba(108, 99, 255, 0.7); }
@@ -168,37 +183,38 @@ body {
       0deg,
       transparent,
       transparent 1px,
-      rgba(0, 0, 0, 0.008) 1px,
-      rgba(0, 0, 0, 0.008) 2px
+      rgba(0, 0, 0, 0.01) 1px,
+      rgba(0, 0, 0, 0.01) 2px
     ),
     /* 세로 줄 질감 (감열지 특유의 결) */
     repeating-linear-gradient(
       90deg,
       transparent,
       transparent 3px,
-      rgba(0, 0, 0, 0.006) 3px,
-      rgba(0, 0, 0, 0.006) 4px
+      rgba(0, 0, 0, 0.005) 3px,
+      rgba(0, 0, 0, 0.005) 4px
     ),
     /* 전체적인 그라데이션 (약간 불균일한 인쇄) */
     linear-gradient(
       180deg,
-      #f9f6f0 0%,
-      #f7f4ee 20%,
-      #f5f2ec 50%,
-      #f3f0e8 80%,
-      #f1eee6 100%
+      #faf8f4 0%,
+      #f8f6f1 20%,
+      #f6f4ef 50%,
+      #f4f2ec 80%,
+      #f2f0e9 100%
     );
-  color: #2a2a2a;
-  /* 감열지 프린터의 실제 폰트는 고딕 계열 + 약간 거친 느낌 */
-  font-family: 'Nanum Gothic', 'NanumGothic', 'Malgun Gothic', '맑은 고딕', sans-serif;
+  color: #1a1a1a;
+  /* POS 영수증 핵심 폰트: 두꺼운 산세리프 고딕 */
+  font-family: 'IBM Plex Sans KR', 'Nanum Gothic', 'Malgun Gothic', '맑은 고딕', sans-serif;
   font-size: 14px;
-  line-height: 1.7;
+  line-height: 1.8;
+  font-weight: 600;
+  letter-spacing: -0.2px;
   /* 종이 가장자리 표현 */
   border: none;
   box-shadow:
     2px 3px 12px rgba(0, 0, 0, 0.15),
     0 0 0 1px rgba(0, 0, 0, 0.04);
-  /* 종이 테두리 미세하게 불규칙 */
   border-radius: 1px;
   position: relative;
   overflow: hidden;
@@ -243,56 +259,54 @@ body {
 
 .receipt-title {
   text-align: center;
-  font-size: 17px;
-  font-weight: 800;
-  letter-spacing: 6px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 8px;
   margin-bottom: 18px;
-  color: #1a1a1a;
-  /* 감열 인쇄 특유의 약간 번진 느낌 */
-  text-shadow: 0.3px 0.3px 0px rgba(0, 0, 0, 0.1);
+  color: #111;
 }
 
 .receipt-section { margin-bottom: 8px; }
 .receipt-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #333;
+  font-size: 14px;
+  font-weight: 700;
+  color: #222;
 }
 .receipt-address {
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: 3px;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 4px;
   margin-top: 2px;
-  color: #111;
-  text-shadow: 0.4px 0.4px 0px rgba(0, 0, 0, 0.08);
+  color: #000;
 }
 
 .receipt-divider-stars {
-  font-size: 11px;
+  font-size: 12px;
   text-align: center;
   margin: 12px 0 6px;
   white-space: nowrap;
   overflow: hidden;
-  color: #333;
-  letter-spacing: 0.5px;
+  color: #222;
+  letter-spacing: 0px;
+  font-weight: 700;
 }
 
 .receipt-request {
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.6;
   margin-bottom: 6px;
   word-break: keep-all;
-  color: #222;
-  font-weight: 500;
+  color: #111;
+  font-weight: 700;
 }
 
 .receipt-line {
-  border-top: 1.5px solid #333;
+  border-top: 1.5px solid #222;
   margin: 14px 0 10px;
 }
 
 .receipt-line-dashed {
-  border-top: 1.5px dashed #666;
+  border-top: 1.5px dashed #444;
   margin: 6px 0 10px;
 }
 
@@ -301,7 +315,7 @@ body {
   grid-template-columns: 1fr 50px 70px;
   font-size: 14px;
   font-weight: 700;
-  color: #111;
+  color: #000;
 }
 .receipt-menu-header span:nth-child(2),
 .receipt-menu-header span:nth-child(3) { text-align: right; }
@@ -313,8 +327,8 @@ body {
   display: grid;
   grid-template-columns: 1fr 50px 70px;
   font-size: 14px;
-  font-weight: 500;
-  color: #222;
+  font-weight: 600;
+  color: #111;
 }
 .receipt-normal-item .item-qty,
 .receipt-normal-item .item-price { text-align: right; }
@@ -323,14 +337,14 @@ body {
 .receipt-promo-name {
   font-weight: 700;
   margin-bottom: 2px;
-  color: #222;
+  color: #111;
 }
 .receipt-promo-detail {
   display: grid;
   grid-template-columns: 1fr 50px 70px;
   font-size: 13px;
-  color: #333;
-  font-weight: 500;
+  color: #222;
+  font-weight: 600;
 }
 .receipt-promo-detail span:nth-child(2),
 .receipt-promo-detail span:nth-child(3) { text-align: right; }
@@ -339,28 +353,28 @@ body {
   display: grid;
   grid-template-columns: 1fr 50px 70px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   margin: 6px 0;
-  color: #222;
+  color: #111;
 }
 .receipt-delivery-fee span:nth-child(2),
 .receipt-delivery-fee span:nth-child(3) { text-align: right; }
 
 .receipt-discount-label {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   margin: 10px 0;
-  color: #222;
+  color: #111;
 }
 
 .receipt-totals { margin-top: 10px; }
 .receipt-total-row {
   display: flex;
   justify-content: space-between;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   padding: 3px 0;
-  color: #1a1a1a;
+  color: #000;
 }
 
 /* Control Panel */

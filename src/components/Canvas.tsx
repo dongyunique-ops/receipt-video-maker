@@ -3,66 +3,93 @@ import { useAppStore } from '../stores/useAppStore';
 import { Receipt } from './Receipt';
 import type { PhotoItem } from '../types';
 
+type InteractionMode = 'move' | 'rotate' | 'resize';
+
 interface DragState {
   isDragging: boolean;
-  mode: 'move' | 'rotate';
-  elementType: 'photo' | 'receipt' | null;
-  elementId: string | null;
+  mode: InteractionMode;
   startX: number;
   startY: number;
   startElementX: number;
   startElementY: number;
   startRotation: number;
+  startScale: number;
   centerX: number;
   centerY: number;
+  startDistance: number;
 }
 
 function getRotateCursor(): string {
-  // SVG rotate cursor
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>`;
-  const encoded = encodeURIComponent(svg);
-  return `url("data:image/svg+xml,${encoded}") 12 12, grab`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>`;
+  return `url("data:image/svg+xml,${svg}") 10 10, grab`;
 }
 
-function isNearEdge(e: React.MouseEvent, element: HTMLDivElement): boolean {
+function getResizeCursor(): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="%23ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>`;
+  return `url("data:image/svg+xml,${svg}") 9 9, nwse-resize`;
+}
+
+function detectMode(e: React.MouseEvent, element: HTMLDivElement): InteractionMode {
   const rect = element.getBoundingClientRect();
-  const margin = 18; // 가장자리 감지 범위 (px)
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
-  return (
-    x < margin || x > rect.width - margin ||
-    y < margin || y > rect.height - margin
-  );
+  const cornerSize = 24;
+  const edgeSize = 14;
+
+  // 코너 체크 (크기 조절)
+  const isTopLeft = x < cornerSize && y < cornerSize;
+  const isTopRight = x > rect.width - cornerSize && y < cornerSize;
+  const isBottomLeft = x < cornerSize && y > rect.height - cornerSize;
+  const isBottomRight = x > rect.width - cornerSize && y > rect.height - cornerSize;
+
+  if (isTopLeft || isTopRight || isBottomLeft || isBottomRight) {
+    return 'resize';
+  }
+
+  // 가장자리 체크 (회전)
+  if (x < edgeSize || x > rect.width - edgeSize || y < edgeSize || y > rect.height - edgeSize) {
+    return 'rotate';
+  }
+
+  return 'move';
+}
+
+function getCursorForMode(mode: InteractionMode): string {
+  switch (mode) {
+    case 'resize': return getResizeCursor();
+    case 'rotate': return getRotateCursor();
+    default: return 'move';
+  }
 }
 
 function PhotoElement({ photo, isSelected, scale }: { photo: PhotoItem; isSelected: boolean; scale: number }) {
   const { selectElement, updatePhotoTransform } = useAppStore();
   const elementRef = useRef<HTMLDivElement>(null);
-  const [isRotateHover, setIsRotateHover] = useState(false);
+  const [hoverMode, setHoverMode] = useState<InteractionMode>('move');
   const dragRef = useRef<DragState>({
     isDragging: false,
     mode: 'move',
-    elementType: null,
-    elementId: null,
     startX: 0,
     startY: 0,
     startElementX: 0,
     startElementY: 0,
     startRotation: 0,
+    startScale: 1,
     centerX: 0,
     centerY: 0,
+    startDistance: 0,
   });
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (dragRef.current.isDragging) return;
     if (elementRef.current) {
-      setIsRotateHover(isNearEdge(e, elementRef.current));
+      setHoverMode(detectMode(e, elementRef.current));
     }
   };
 
   const handleMouseLeave = () => {
     if (!dragRef.current.isDragging) {
-      setIsRotateHover(false);
+      setHoverMode('move');
     }
   };
 
@@ -73,31 +100,33 @@ function PhotoElement({ photo, isSelected, scale }: { photo: PhotoItem; isSelect
     const rect = elementRef.current!.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
-    const mode = isRotateHover ? 'rotate' : 'move';
+    const mode = hoverMode;
+
+    const distFromCenter = Math.sqrt(
+      (e.clientX - centerX) ** 2 + (e.clientY - centerY) ** 2
+    );
 
     dragRef.current = {
       isDragging: true,
       mode,
-      elementType: 'photo',
-      elementId: photo.id,
       startX: e.clientX,
       startY: e.clientY,
       startElementX: photo.transform.x,
       startElementY: photo.transform.y,
       startRotation: photo.transform.rotation,
+      startScale: photo.transform.scale,
       centerX,
       centerY,
+      startDistance: distFromCenter,
     };
 
-    const startAngle = Math.atan2(
-      e.clientY - centerY,
-      e.clientX - centerX
-    );
+    const startAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
 
     const onMove = (ev: MouseEvent) => {
       if (!dragRef.current.isDragging) return;
+      const { mode: m } = dragRef.current;
 
-      if (dragRef.current.mode === 'rotate') {
+      if (m === 'rotate') {
         const currentAngle = Math.atan2(
           ev.clientY - dragRef.current.centerY,
           ev.clientX - dragRef.current.centerX
@@ -106,6 +135,14 @@ function PhotoElement({ photo, isSelected, scale }: { photo: PhotoItem; isSelect
         updatePhotoTransform(photo.id, {
           rotation: Math.round(dragRef.current.startRotation + delta),
         });
+      } else if (m === 'resize') {
+        const currentDist = Math.sqrt(
+          (ev.clientX - dragRef.current.centerX) ** 2 +
+          (ev.clientY - dragRef.current.centerY) ** 2
+        );
+        const ratio = currentDist / dragRef.current.startDistance;
+        const newScale = Math.max(0.1, Math.min(5, dragRef.current.startScale * ratio));
+        updatePhotoTransform(photo.id, { scale: parseFloat(newScale.toFixed(2)) });
       } else {
         const dx = (ev.clientX - dragRef.current.startX) / scale;
         const dy = (ev.clientY - dragRef.current.startY) / scale;
@@ -118,7 +155,6 @@ function PhotoElement({ photo, isSelected, scale }: { photo: PhotoItem; isSelect
 
     const onUp = () => {
       dragRef.current.isDragging = false;
-      setIsRotateHover(false);
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseup', onUp);
     };
@@ -141,7 +177,7 @@ function PhotoElement({ photo, isSelected, scale }: { photo: PhotoItem; isSelect
         top: y,
         transform: `scale(${photoScale}) rotate(${rotation}deg)`,
         transformOrigin: 'center center',
-        cursor: isRotateHover ? getRotateCursor() : 'move',
+        cursor: getCursorForMode(hoverMode),
         border: `${photo.borderWidth}px solid ${photo.borderColor}`,
         boxShadow: `${offsetX}px ${offsetY}px ${blur}px ${spread}px ${shadowColor}`,
         background: '#fff',
@@ -164,7 +200,10 @@ function PhotoElement({ photo, isSelected, scale }: { photo: PhotoItem; isSelect
         }}
       />
       {isSelected && <div className="selection-outline" />}
-      {isRotateHover && <div className="rotate-indicator" />}
+      {isSelected && <div className="resize-handle tl" />}
+      {isSelected && <div className="resize-handle tr" />}
+      {isSelected && <div className="resize-handle bl" />}
+      {isSelected && <div className="resize-handle br" />}
     </div>
   );
 }
@@ -172,31 +211,31 @@ function PhotoElement({ photo, isSelected, scale }: { photo: PhotoItem; isSelect
 function ReceiptElement({ isSelected, scale }: { isSelected: boolean; scale: number }) {
   const { receiptTransform, selectElement, updateReceiptTransform } = useAppStore();
   const elementRef = useRef<HTMLDivElement>(null);
-  const [isRotateHover, setIsRotateHover] = useState(false);
+  const [hoverMode, setHoverMode] = useState<InteractionMode>('move');
   const dragRef = useRef<DragState>({
     isDragging: false,
     mode: 'move',
-    elementType: null,
-    elementId: null,
     startX: 0,
     startY: 0,
     startElementX: 0,
     startElementY: 0,
     startRotation: 0,
+    startScale: 1,
     centerX: 0,
     centerY: 0,
+    startDistance: 0,
   });
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (dragRef.current.isDragging) return;
     if (elementRef.current) {
-      setIsRotateHover(isNearEdge(e, elementRef.current));
+      setHoverMode(detectMode(e, elementRef.current));
     }
   };
 
   const handleMouseLeave = () => {
     if (!dragRef.current.isDragging) {
-      setIsRotateHover(false);
+      setHoverMode('move');
     }
   };
 
@@ -207,31 +246,33 @@ function ReceiptElement({ isSelected, scale }: { isSelected: boolean; scale: num
     const rect = elementRef.current!.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
-    const mode = isRotateHover ? 'rotate' : 'move';
+    const mode = hoverMode;
+
+    const distFromCenter = Math.sqrt(
+      (e.clientX - centerX) ** 2 + (e.clientY - centerY) ** 2
+    );
 
     dragRef.current = {
       isDragging: true,
       mode,
-      elementType: 'receipt',
-      elementId: null,
       startX: e.clientX,
       startY: e.clientY,
       startElementX: receiptTransform.x,
       startElementY: receiptTransform.y,
       startRotation: receiptTransform.rotation,
+      startScale: receiptTransform.scale,
       centerX,
       centerY,
+      startDistance: distFromCenter,
     };
 
-    const startAngle = Math.atan2(
-      e.clientY - centerY,
-      e.clientX - centerX
-    );
+    const startAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
 
     const onMove = (ev: MouseEvent) => {
       if (!dragRef.current.isDragging) return;
+      const { mode: m } = dragRef.current;
 
-      if (dragRef.current.mode === 'rotate') {
+      if (m === 'rotate') {
         const currentAngle = Math.atan2(
           ev.clientY - dragRef.current.centerY,
           ev.clientX - dragRef.current.centerX
@@ -240,6 +281,14 @@ function ReceiptElement({ isSelected, scale }: { isSelected: boolean; scale: num
         updateReceiptTransform({
           rotation: Math.round(dragRef.current.startRotation + delta),
         });
+      } else if (m === 'resize') {
+        const currentDist = Math.sqrt(
+          (ev.clientX - dragRef.current.centerX) ** 2 +
+          (ev.clientY - dragRef.current.centerY) ** 2
+        );
+        const ratio = currentDist / dragRef.current.startDistance;
+        const newScale = Math.max(0.3, Math.min(5, dragRef.current.startScale * ratio));
+        updateReceiptTransform({ scale: parseFloat(newScale.toFixed(2)) });
       } else {
         const dx = (ev.clientX - dragRef.current.startX) / scale;
         const dy = (ev.clientY - dragRef.current.startY) / scale;
@@ -252,7 +301,6 @@ function ReceiptElement({ isSelected, scale }: { isSelected: boolean; scale: num
 
     const onUp = () => {
       dragRef.current.isDragging = false;
-      setIsRotateHover(false);
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseup', onUp);
     };
@@ -273,7 +321,7 @@ function ReceiptElement({ isSelected, scale }: { isSelected: boolean; scale: num
         top: y,
         transform: `scale(${rScale}) rotate(${rotation}deg)`,
         transformOrigin: 'center center',
-        cursor: isRotateHover ? getRotateCursor() : 'move',
+        cursor: getCursorForMode(hoverMode),
         width: width,
       }}
       onMouseDown={handleMouseDown}
@@ -282,7 +330,10 @@ function ReceiptElement({ isSelected, scale }: { isSelected: boolean; scale: num
     >
       <Receipt />
       {isSelected && <div className="selection-outline" />}
-      {isRotateHover && <div className="rotate-indicator" />}
+      {isSelected && <div className="resize-handle tl" />}
+      {isSelected && <div className="resize-handle tr" />}
+      {isSelected && <div className="resize-handle bl" />}
+      {isSelected && <div className="resize-handle br" />}
     </div>
   );
 }
