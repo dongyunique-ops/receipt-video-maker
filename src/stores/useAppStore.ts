@@ -1,5 +1,15 @@
 import { create } from 'zustand';
-import type { AppState, PhotoItem, ReceiptData, MenuItem } from '../types';
+import type {
+  AppState,
+  PhotoItem,
+  ReceiptData,
+  MenuItem,
+  ReceiptTransform,
+  CanvasState,
+  SelectedElement,
+  Transform,
+  ShadowConfig,
+} from '../types';
 
 const defaultReceipt: ReceiptData = {
   title: '[배달] 주 문 서',
@@ -38,22 +48,53 @@ const defaultReceipt: ReceiptData = {
   discountLabel: '[배민클럽] 5500원 할인',
 };
 
+const defaultReceiptTransform: ReceiptTransform = {
+  x: 1300,
+  y: 200,
+  scale: 1,
+  rotation: 0,
+  width: 320,
+};
+
+const defaultCanvas: CanvasState = {
+  width: 1920,
+  height: 1080,
+  background: null,
+  backgroundColor: '#f5f5f0',
+};
+
 interface AppActions {
+  // Photo actions
   addPhoto: (photo: PhotoItem) => void;
   removePhoto: (id: string) => void;
-  updatePhoto: (id: string, updates: Partial<PhotoItem>) => void;
-  selectPhoto: (id: string | null) => void;
+  updatePhotoTransform: (id: string, transform: Partial<Transform>) => void;
+  updatePhotoShadow: (id: string, shadow: Partial<ShadowConfig>) => void;
+  updatePhotoBorder: (id: string, updates: { borderWidth?: number; borderColor?: string }) => void;
+
+  // Selection
+  selectElement: (element: SelectedElement) => void;
+
+  // Receipt actions
   updateReceipt: (updates: Partial<ReceiptData>) => void;
+  updateReceiptTransform: (updates: Partial<ReceiptTransform>) => void;
   addMenuItem: (item: MenuItem) => void;
   updateMenuItem: (id: string, updates: Partial<MenuItem>) => void;
   removeMenuItem: (id: string) => void;
+
+  // Canvas actions
+  setBackground: (bg: string | null) => void;
+  setBackgroundColor: (color: string) => void;
+
+  // Recording
   setRecording: (isRecording: boolean) => void;
 }
 
 export const useAppStore = create<AppState & AppActions>((set) => ({
+  canvas: defaultCanvas,
   photos: [],
   receipt: defaultReceipt,
-  selectedPhotoId: null,
+  receiptTransform: defaultReceiptTransform,
+  selectedElement: null,
   isRecording: false,
 
   addPhoto: (photo) =>
@@ -62,20 +103,42 @@ export const useAppStore = create<AppState & AppActions>((set) => ({
   removePhoto: (id) =>
     set((state) => ({
       photos: state.photos.filter((p) => p.id !== id),
-      selectedPhotoId: state.selectedPhotoId === id ? null : state.selectedPhotoId,
+      selectedElement:
+        state.selectedElement?.type === 'photo' && state.selectedElement.id === id
+          ? null
+          : state.selectedElement,
     })),
 
-  updatePhoto: (id, updates) =>
+  updatePhotoTransform: (id, transform) =>
+    set((state) => ({
+      photos: state.photos.map((p) =>
+        p.id === id ? { ...p, transform: { ...p.transform, ...transform } } : p
+      ),
+    })),
+
+  updatePhotoShadow: (id, shadow) =>
+    set((state) => ({
+      photos: state.photos.map((p) =>
+        p.id === id ? { ...p, shadow: { ...p.shadow, ...shadow } } : p
+      ),
+    })),
+
+  updatePhotoBorder: (id, updates) =>
     set((state) => ({
       photos: state.photos.map((p) =>
         p.id === id ? { ...p, ...updates } : p
       ),
     })),
 
-  selectPhoto: (id) => set({ selectedPhotoId: id }),
+  selectElement: (element) => set({ selectedElement: element }),
 
   updateReceipt: (updates) =>
     set((state) => ({ receipt: { ...state.receipt, ...updates } })),
+
+  updateReceiptTransform: (updates) =>
+    set((state) => ({
+      receiptTransform: { ...state.receiptTransform, ...updates },
+    })),
 
   addMenuItem: (item) =>
     set((state) => ({
@@ -102,6 +165,12 @@ export const useAppStore = create<AppState & AppActions>((set) => ({
         menuItems: state.receipt.menuItems.filter((item) => item.id !== id),
       },
     })),
+
+  setBackground: (bg) =>
+    set((state) => ({ canvas: { ...state.canvas, background: bg } })),
+
+  setBackgroundColor: (color) =>
+    set((state) => ({ canvas: { ...state.canvas, backgroundColor: color } })),
 
   setRecording: (isRecording) => set({ isRecording }),
 }));

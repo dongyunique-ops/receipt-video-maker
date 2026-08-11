@@ -16,55 +16,47 @@ export function ReceiptEditor() {
 
   return (
     <div className="receipt-editor">
-      <h3>영수증 편집</h3>
+      <h3>영수증 내용 편집</h3>
 
-      <div className="editor-section">
-        <label>
-          제목:
-          <input
-            type="text"
-            value={receipt.title}
-            onChange={(e) => updateReceipt({ title: e.target.value })}
-          />
-        </label>
+      <div className="editor-field">
+        <label>제목</label>
+        <input
+          type="text"
+          value={receipt.title}
+          onChange={(e) => updateReceipt({ title: e.target.value })}
+        />
       </div>
 
-      <div className="editor-section">
-        <label>
-          배달주소:
-          <input
-            type="text"
-            value={receipt.deliveryAddress}
-            onChange={(e) => updateReceipt({ deliveryAddress: e.target.value })}
-          />
-        </label>
+      <div className="editor-field">
+        <label>배달주소</label>
+        <input
+          type="text"
+          value={receipt.deliveryAddress}
+          onChange={(e) => updateReceipt({ deliveryAddress: e.target.value })}
+        />
       </div>
 
-      <div className="editor-section">
-        <label>
-          고객요청:
-          <textarea
-            value={receipt.customerRequest}
-            onChange={(e) => updateReceipt({ customerRequest: e.target.value })}
-          />
-        </label>
+      <div className="editor-field">
+        <label>고객요청</label>
+        <textarea
+          value={receipt.customerRequest}
+          onChange={(e) => updateReceipt({ customerRequest: e.target.value })}
+        />
       </div>
 
-      <div className="editor-section">
-        <label>
-          라이더요청:
-          <input
-            type="text"
-            value={receipt.riderRequest}
-            onChange={(e) => updateReceipt({ riderRequest: e.target.value })}
-          />
-        </label>
+      <div className="editor-field">
+        <label>라이더요청</label>
+        <input
+          type="text"
+          value={receipt.riderRequest}
+          onChange={(e) => updateReceipt({ riderRequest: e.target.value })}
+        />
       </div>
 
-      <div className="editor-section">
-        <h4>메뉴 항목</h4>
+      <div className="editor-field">
+        <label>메뉴 항목</label>
         {receipt.menuItems.map((item) => (
-          <div key={item.id} className="menu-item-editor">
+          <div key={item.id} className="menu-item-row">
             <input
               type="text"
               placeholder="메뉴명"
@@ -76,16 +68,16 @@ export function ReceiptEditor() {
               placeholder="수량"
               value={item.quantity}
               onChange={(e) => updateMenuItem(item.id, { quantity: parseInt(e.target.value) || 0 })}
-              style={{ width: '60px' }}
+              className="input-sm"
             />
             <input
               type="number"
               placeholder="금액"
               value={item.price}
               onChange={(e) => updateMenuItem(item.id, { price: parseInt(e.target.value) || 0 })}
-              style={{ width: '100px' }}
+              className="input-md"
             />
-            <label className="promo-check">
+            <label className="checkbox-label">
               <input
                 type="checkbox"
                 checked={item.isPromo ?? false}
@@ -99,73 +91,70 @@ export function ReceiptEditor() {
                 placeholder="프로모 라벨"
                 value={item.promoLabel ?? ''}
                 onChange={(e) => updateMenuItem(item.id, { promoLabel: e.target.value })}
+                className="input-full"
               />
             )}
-            <button className="btn-remove-item" onClick={() => removeMenuItem(item.id)}>
-              ×
-            </button>
+            <button className="btn-icon-danger" onClick={() => removeMenuItem(item.id)}>×</button>
           </div>
         ))}
-        <button className="btn-add-item" onClick={handleAddItem}>
-          + 메뉴 추가
-        </button>
+        <button className="btn-secondary" onClick={handleAddItem}>+ 메뉴 추가</button>
       </div>
 
-      <div className="editor-section">
-        <label>
-          배달비:
+      <div className="editor-row">
+        <div className="editor-field">
+          <label>배달비</label>
           <input
             type="number"
             value={receipt.deliveryFee}
             onChange={(e) => updateReceipt({ deliveryFee: parseInt(e.target.value) || 0 })}
           />
-        </label>
-      </div>
-
-      <div className="editor-section">
-        <label>
-          할인 라벨:
+        </div>
+        <div className="editor-field">
+          <label>할인 라벨</label>
           <input
             type="text"
             value={receipt.discountLabel}
             onChange={(e) => updateReceipt({ discountLabel: e.target.value })}
           />
-        </label>
+        </div>
       </div>
 
-      <div className="editor-section editor-totals">
-        <label>
-          소계금액:
+      <div className="editor-row">
+        <div className="editor-field">
+          <label>소계</label>
           <input
             type="number"
             value={receipt.subtotal}
             onChange={(e) => updateReceipt({ subtotal: parseInt(e.target.value) || 0 })}
           />
-        </label>
-        <label>
-          할인금액:
+        </div>
+        <div className="editor-field">
+          <label>할인</label>
           <input
             type="number"
             value={receipt.discount}
             onChange={(e) => updateReceipt({ discount: parseInt(e.target.value) || 0 })}
           />
-        </label>
-        <label>
-          합계금액:
+        </div>
+      </div>
+
+      <div className="editor-row">
+        <div className="editor-field">
+          <label>합계</label>
           <input
             type="number"
             value={receipt.total}
             onChange={(e) => updateReceipt({ total: parseInt(e.target.value) || 0 })}
           />
-        </label>
-        <label>
-          청구금액:
+        </div>
+        <div className="editor-field">
+          <label>청구</label>
           <input
             type="number"
             value={receipt.chargedAmount}
             onChange={(e) => updateReceipt({ chargedAmount: parseInt(e.target.value) || 0 })}
           />
-        </label>
+        </div>
       </div>
     </div>
   );

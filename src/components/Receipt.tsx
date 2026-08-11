@@ -5,9 +5,14 @@ function formatPrice(price: number): string {
   return price.toLocaleString('ko-KR');
 }
 
-function ReceiptContent({ data }: { data: ReceiptData }) {
+export function Receipt() {
+  const receipt = useAppStore((state) => state.receipt);
+  return <ReceiptContent data={receipt} />;
+}
+
+export function ReceiptContent({ data }: { data: ReceiptData }) {
   return (
-    <div className="receipt" id="receipt-content">
+    <div className="receipt">
       {/* 제목 */}
       <div className="receipt-title">{data.title}</div>
 
@@ -91,21 +96,6 @@ function ReceiptContent({ data }: { data: ReceiptData }) {
           <span>청구금액</span>
           <span>{formatPrice(data.chargedAmount)}</span>
         </div>
-      </div>
-    </div>
-  );
-}
-
-export function Receipt() {
-  const receipt = useAppStore((state) => state.receipt);
-
-  return (
-    <div className="receipt-panel">
-      <div className="panel-header">
-        <h2>영수증</h2>
-      </div>
-      <div className="receipt-wrapper">
-        <ReceiptContent data={receipt} />
       </div>
     </div>
   );

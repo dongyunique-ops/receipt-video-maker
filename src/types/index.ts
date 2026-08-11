@@ -21,17 +21,54 @@ export interface ReceiptData {
   discountLabel: string;
 }
 
+export interface Transform {
+  x: number;
+  y: number;
+  scale: number;
+  rotation: number;
+}
+
+export interface ShadowConfig {
+  offsetX: number;
+  offsetY: number;
+  blur: number;
+  spread: number;
+  color: string;
+  opacity: number;
+}
+
 export interface PhotoItem {
   id: string;
   src: string;
-  scale: number;
-  x: number;
-  y: number;
+  transform: Transform;
+  shadow: ShadowConfig;
+  borderWidth: number;
+  borderColor: string;
+  width: number;
+  height: number;
 }
 
+export interface ReceiptTransform extends Transform {
+  width: number;
+}
+
+export interface CanvasState {
+  width: number;
+  height: number;
+  background: string | null; // null = solid color, string = image data URL
+  backgroundColor: string;
+}
+
+export type SelectedElement =
+  | { type: 'photo'; id: string }
+  | { type: 'receipt' }
+  | null;
+
 export interface AppState {
+  canvas: CanvasState;
   photos: PhotoItem[];
   receipt: ReceiptData;
-  selectedPhotoId: string | null;
+  receiptTransform: ReceiptTransform;
+  selectedElement: SelectedElement;
   isRecording: boolean;
 }

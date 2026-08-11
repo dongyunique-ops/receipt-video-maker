@@ -1,43 +1,46 @@
 import { useState } from 'react';
-import { PhotoPanel } from './components/PhotoPanel';
-import { Receipt } from './components/Receipt';
+import { Canvas } from './components/Canvas';
+import { ControlPanel } from './components/ControlPanel';
 import { ReceiptEditor } from './components/ReceiptEditor';
 import { VideoExporter } from './components/VideoExporter';
 import './App.css';
 
 function App() {
-  const [showEditor, setShowEditor] = useState(false);
+  const [activeTab, setActiveTab] = useState<'controls' | 'receipt'>('controls');
 
   return (
     <div className="app">
       <header className="app-header">
         <h1>영수증 영상 메이커</h1>
-        <div className="header-actions">
-          <button
-            className={`btn-toggle-editor ${showEditor ? 'active' : ''}`}
-            onClick={() => setShowEditor(!showEditor)}
-          >
-            {showEditor ? '편집기 닫기' : '영수증 편집'}
-          </button>
-          <VideoExporter />
-        </div>
+        <VideoExporter />
       </header>
 
       <main className="app-main">
-        <div className="main-canvas" id="main-canvas">
-          <div className="canvas-left">
-            <PhotoPanel />
+        {/* 왼쪽: 컨트롤 패널 */}
+        <aside className="sidebar-panel">
+          <div className="tab-bar">
+            <button
+              className={`tab ${activeTab === 'controls' ? 'active' : ''}`}
+              onClick={() => setActiveTab('controls')}
+            >
+              설정
+            </button>
+            <button
+              className={`tab ${activeTab === 'receipt' ? 'active' : ''}`}
+              onClick={() => setActiveTab('receipt')}
+            >
+              영수증 편집
+            </button>
           </div>
-          <div className="canvas-right">
-            <Receipt />
+          <div className="sidebar-content">
+            {activeTab === 'controls' ? <ControlPanel /> : <ReceiptEditor />}
           </div>
-        </div>
+        </aside>
 
-        {showEditor && (
-          <aside className="editor-sidebar">
-            <ReceiptEditor />
-          </aside>
-        )}
+        {/* 오른쪽: 1920x1080 캔버스 */}
+        <div className="canvas-area">
+          <Canvas />
+        </div>
       </main>
     </div>
   );
